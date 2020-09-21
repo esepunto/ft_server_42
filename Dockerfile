@@ -18,6 +18,12 @@ RUN	apt-get update && apt install -y \
  
 ##	php7.0 php7.0-fpm php7.0-mysql
 
+# Replace html from Apache
+COPY srcs/nginx/index.html var/www/html/index.html
+
+# Initialize nginx
+# CMD service nginx start
+
 # Start autoindex on (put "no" to off)
 ENV	AUTOINDEX=yes
 

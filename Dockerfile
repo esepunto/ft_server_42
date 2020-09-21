@@ -1,10 +1,12 @@
+# See best practices in Dockerfile: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run 
+
 # Install Debian
 FROM	debian:buster
 
 # Who are me?
 LABEL	maintainer = "ssacrist@student.42madrid.com"
 
-# Update and install. See best practices in Dockerfile: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run 
+# Update and install. 
 RUN	apt-get update && apt install -y \
 	nginx \
 	php php-mysql \
@@ -13,9 +15,6 @@ RUN	apt-get update && apt install -y \
 # Segurizar servicio mariadb ¿? https://www.atareao.es/tutorial/raspberry-pi-primeros-pasos/infraestructura-lemp-con-nginx-en-raspberry/
 #RUN	mysql_secure_installation  
 
-# Delete index.html in var/www/html && rename index.nginx-debian.html in same path
-#mv index.nginx-debian.html index.html
- 
 ##	php7.0 php7.0-fpm php7.0-mysql
 
 # Replace html from Apache

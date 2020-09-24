@@ -20,17 +20,17 @@ RUN	apt-get update && apt install -y \
 # Replace html from Apache
 COPY srcs/nginx/index.html var/www/html/index.html
 
-# Initialize nginx
-# CMD service nginx start
-
 # Start autoindex on (put "no" to off)
 ENV	AUTOINDEX=yes
+
+# Initialize nginx
+#CMD service nginx start \
+#	service mysql start
 
 # Crear bd MySQL desde Linux
 	#create database nombre_bd;
 	#GRANT ALL PRIVILEGES ON nombre_bd.* TO 'usuario'@'localhost' IDENTIFIED BY 'contraseña';
 	#flush privileges;
-
 
 # Config nginx
 #/etc/nginx/nginx.conf

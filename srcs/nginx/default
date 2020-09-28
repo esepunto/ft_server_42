@@ -5,7 +5,7 @@ server {
     root /var/www/html;
     index index.php index.html index.htm index.nginx-debian.html;
 
-    server_name YOUR_DOMAIN_OR_IP_HERE;
+    server_name localhost;
 
     location / {
         try_files $uri $uri/ =404;
@@ -13,7 +13,7 @@ server {
 
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
     }
 
     location ~ /\.ht {

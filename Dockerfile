@@ -26,29 +26,32 @@ COPY srcs/nginx/default /etc/nginx/sites-available/default
 # Config php
 COPY srcs/php/info.php var/www/html/
 
-# INSTALL PHPMYADMIN
+# INSTALL PHPMYADMIN #
 # Install some packages
 RUN apt-get install -y php-mbstring php-zip php-gd
-#
 # Download phpmyadmin
 RUN wget https://files.phpmyadmin.net/phpMyAdmin/4.9.5/phpMyAdmin-4.9.5-all-languages.tar.gz
-#
 # Extract phpmyadmin
 RUN tar xvzf phpMyAdmin-4.9.5-all-languages.tar.gz
-#
 # Move directories
 RUN mv phpMyAdmin-4.9.5-all-languages var/www/html/phpmyadmin
-#
 # Delete phppmyadmin.tar
 RUN rm phpMyAdmin-4.9.5-all-languages.tar.gz
-#
 # Config phpmyadmin
 COPY srcs/phpmyadmin/config.inc.php var/www/html/phpmyadmin
-#
 # Create user and pass to access PhpMyAdmin (samuel/samuel)
 RUN service mysql start && \
 	echo "GRANT ALL PRIVILEGES ON *.* TO 'samuel'@'localhost' IDENTIFIED BY 'samuel' WITH GRANT OPTION;" | mysql -u root  && \
 	echo "FLUSH PRIVILEGES;" | mysql -u root
+
+# Creating the SSL Certificate
+# Mod 1
+RUN apt-get install -y openssl
+RUN mkdir etc/nginx/ssl
+RUN chmod 700 /etc/nginx/ssl
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=127.0.0.1" -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+COPY srcs/nginx/ssl/self-signed.conf /etc/nginx/snippets/self-signed.conf
+COPY srcs/nginx/ssl/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
 
 # Start autoindex on (put "no" to off)
 ENV	AUTOINDEX=yes
@@ -61,11 +64,3 @@ CMD service nginx start && \
 	service php7.3-fpm start && \
 	bash
 
-
-# Crear bd MySQL desde Linux
-	#create database nombre_bd;
-	#GRANT ALL PRIVILEGES ON nombre_bd.* TO 'usuario'@'localhost' IDENTIFIED BY 'contraseña';
-	#flush privileges;
-
-# Config nginx
-#/etc/nginx/nginx.conf

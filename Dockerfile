@@ -42,13 +42,27 @@ RUN service mysql start && \
 	echo "FLUSH PRIVILEGES;" | mysql -u root
 
 # CREATING THE SSL CERTIFICATE
-# Mod 1
 RUN apt-get install -y openssl
 #RUN mkdir etc/nginx/ssl
 #RUN chmod 700 /etc/nginx/ssl
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=ssacrist" -keyout /etc/ssl/private/ssacrist.key -out /etc/ssl/certs/ssacrist.crt
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=esepunto" -keyout /etc/ssl/private/ssacrist.key -out /etc/ssl/certs/ssacrist.crt
 COPY srcs/nginx/ssl/self-signed.conf /etc/nginx/snippets/self-signed.conf
 COPY srcs/nginx/ssl/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
+
+# INSTALL WORDPRESS #
+# Create user and pass to access wordppress (samuel/samuel)
+RUN service mysql start && \
+	echo "CREATE DATABASE wpdb;" | mysql -u root -p && \
+	echo "CREATE USER 'wpuser'@'localhost' identified by 'dbpassword';" | mysql -u root -p && \
+	echo "GRANT ALL PRIVILEGES ON wpdb.* TO 'wpuser'@'localhost';" | mysql -u root -p && \
+	echo "FLUSH PRIVILEGES;" | mysql -u root -p && \
+	echo "update mysql.user set plugin = 'mysql_native_password' where user='root';" | mysql -u root
+RUN wget https://wordpress.org/latest.tar.gz
+RUN	tar -xvzf latest.tar.gz
+COPY srcs/wordpress/wp-config.php wordpress/wp-config.php
+RUN chown -R www-data:www-data /var/www/html/wordpress
+COPY srcs/wordpress/wordpress.conf /etc/nginx/sites-available/wordpress.conf
+RUN ln -s /etc/nginx/sites-available/wordpress.conf /etc/nginx/sites-enabled/
 
 # Start autoindex on (put "no" to off)
 ENV	AUTOINDEX=yes

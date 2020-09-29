@@ -13,7 +13,9 @@ server {
     ssl_certificate /etc/ssl/certs/ssacrist.crt;
     ssl_certificate_key /etc/ssl/private/ssacrist.key;
 
+    ## Your only path reference.
     root /var/www/html;
+    ## This should be in your http block and if it is, it's not needed here.
     index index.php index.html index.htm index.nginx-debian.html;
 
     server_name localhost;
@@ -28,6 +30,6 @@ server {
     }
 
     location ~ /\.ht {
-    deny all;
+        deny all;
     }
 }

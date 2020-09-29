@@ -14,10 +14,7 @@ RUN	apt-get install -y php-fpm php-mysql
 
 RUN apt-get install -y vim
 RUN apt-get install -y wget
-#RUN apt-get install -y wordpress/wp.admin && phpmyadmin/config.inc.php
-#RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
-
-
+RUN apt-get install -y sudo
 
 # Replace html from Apache to set localhost page
 COPY srcs/nginx/index.html var/www/html/index.html
@@ -44,12 +41,12 @@ RUN service mysql start && \
 	echo "GRANT ALL PRIVILEGES ON *.* TO 'samuel'@'localhost' IDENTIFIED BY 'samuel' WITH GRANT OPTION;" | mysql -u root  && \
 	echo "FLUSH PRIVILEGES;" | mysql -u root
 
-# Creating the SSL Certificate
+# CREATING THE SSL CERTIFICATE
 # Mod 1
 RUN apt-get install -y openssl
-RUN mkdir etc/nginx/ssl
-RUN chmod 700 /etc/nginx/ssl
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=127.0.0.1" -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+#RUN mkdir etc/nginx/ssl
+#RUN chmod 700 /etc/nginx/ssl
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=ssacrist" -keyout /etc/ssl/private/ssacrist.key -out /etc/ssl/certs/ssacrist.crt
 COPY srcs/nginx/ssl/self-signed.conf /etc/nginx/snippets/self-signed.conf
 COPY srcs/nginx/ssl/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
 

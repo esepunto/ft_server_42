@@ -27,7 +27,6 @@ COPY srcs/nginx/default /etc/nginx/sites-available/default
 COPY srcs/php/info.php var/www/html/
 
 # INSTALL PHPMYADMIN
-#
 # Install some packages
 RUN apt-get install -y php-mbstring php-zip php-gd
 #
@@ -38,57 +37,18 @@ RUN wget https://files.phpmyadmin.net/phpMyAdmin/4.9.5/phpMyAdmin-4.9.5-all-lang
 RUN tar xvzf phpMyAdmin-4.9.5-all-languages.tar.gz
 #
 # Move directories
-#RUN mv phpMyAdmin-4.9.5-all-languages /usr/share/phpmyadmin
 RUN mv phpMyAdmin-4.9.5-all-languages var/www/html/phpmyadmin
-#RUN mv phpMyadmin var/www/html/
 #
 # Delete phppmyadmin.tar
 RUN rm phpMyAdmin-4.9.5-all-languages.tar.gz
-
+#
+# Config phpmyadmin
 COPY srcs/phpmyadmin/config.inc.php var/www/html/phpmyadmin
 #
-# Create temp directory (it´s necessary to run phpmyadmin)
-#RUN mkdir -p /var/lib/phpmyadmin/tmp
-#
-# Asign web-user and group to apache server ¿¿¿???)
-#RUN chown -R www-data:www-data /var/lib/phpmyadmin
-#
-# Data base to phpmyadmin (create_tables.sql is a command create when we install phpmyadmin)
-#RUN mariadb < /usr/share/phpmyadmin/sql/create_tables.sql
-#
-# Connect to ddata vbase server
-#RUN mysql 
-####Insertamos la contraseña que le dimos en la instalación al administrador root y pulsamos la tecla Enter.
-#
-# Create the user 'user', the password 'pass' and get permisions# 
-#RUN GRANT SELECT, INSERT, UPDATE, DELETE ON phpmyadmin.* TO 'user'@'localhost' IDENTIFIED BY 'pass';
-#
-# Create a user to access PhpMyAdmin
-#RUN GRANT ALL PRIVILEGES ON *.* TO 'samuel'@'localhost' IDENTIFIED BY 'samuel' WITH GRANT OPTION;
-#
-# Goto phpmyadmin directory
-
-
-
-
-#RUN wget https://files.phpmyadmin.net/phpMyAdmin/4.9.0.1/phpMyAdmin-4.9.0.1-all-languages.tar.gz
-#RUN tar xvf phpMyAdmin-4.9.0.1-all-languages.tar.gz
-#RUN mv phpMyAdmin-4.9.0.1-all-languages/ /usr/share/phpmyadmin
-#RUN mkdir -p /var/lib/phpmyadmin/tmp
-#RUN chown -R www-data:www-data /var/lib/phpmyadmin
-#RUN cp /usr/share/phpmyadmin/config.sample.inc.php /usr/share/phpmyadmin/config.inc.php
-
-
-
-
-# ¿Borrar? COPY srcs/nginx/nginx.conf /etc/nginx/sites-available/localhost
-# ¿Borrar? COPY srcs/nginx/ssl/self-signed.conf /etc/nginx/snippets/self-signed.conf
-
-
-
-# ¿Borrar? COPY srcs/nginx/default.conf /etc/nginx/conf.d/
-
-
+# Create user and pass to access PhpMyAdmin (samuel/samuel)
+RUN service mysql start && \
+	echo "GRANT ALL PRIVILEGES ON *.* TO 'samuel'@'localhost' IDENTIFIED BY 'samuel' WITH GRANT OPTION;" | mysql -u root  && \
+	echo "FLUSH PRIVILEGES;" | mysql -u root
 
 # Start autoindex on (put "no" to off)
 ENV	AUTOINDEX=yes
@@ -100,7 +60,6 @@ CMD service nginx start && \
 	service mysql start && \
 	service php7.3-fpm start && \
 	bash
-
 
 
 # Crear bd MySQL desde Linux

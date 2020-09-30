@@ -12,11 +12,12 @@ LABEL	maintainer = "ssacrist@student.42madrid.com"
 RUN	apt-get update && apt install -y \
 	nginx \
 	mariadb-server \
-	php-fpm php-mysql
+	php-fpm php-mysql \
+	wget
 
 # SOME INTERESTINGS PROGRAMS"
 RUN apt-get install -y vim
-RUN apt-get install -y wget
+#RUN apt-get install -y wget
 RUN apt-get install -y sudo
 
 # Replace html from Apache to set localhost page
@@ -28,15 +29,15 @@ COPY srcs/php/info.php var/www/html/
 
 # INSTALL PHPMYADMIN #
 # Install some packages
-RUN apt-get install -y php-mbstring php-zip php-gd
+RUN apt-get install -y php-mbstring php-zip php-gd && \
 # Download phpmyadmin
-RUN wget https://files.phpmyadmin.net/phpMyAdmin/4.9.5/phpMyAdmin-4.9.5-all-languages.tar.gz
+	wget https://files.phpmyadmin.net/phpMyAdmin/4.9.5/phpMyAdmin-4.9.5-all-languages.tar.gz && \
 # Extract phpmyadmin
-RUN tar xvzf phpMyAdmin-4.9.5-all-languages.tar.gz
+	tar xvzf phpMyAdmin-4.9.5-all-languages.tar.gz && \
 # Move directories
-RUN mv phpMyAdmin-4.9.5-all-languages var/www/html/phpmyadmin
+	mv phpMyAdmin-4.9.5-all-languages var/www/html/phpmyadmin && \
 # Delete phppmyadmin.tar
-RUN rm phpMyAdmin-4.9.5-all-languages.tar.gz
+	rm phpMyAdmin-4.9.5-all-languages.tar.gz
 # Config phpmyadmin
 COPY srcs/phpmyadmin/config.inc.php var/www/html/phpmyadmin
 # Create user and pass to access PhpMyAdmin (samuel/samuel)
@@ -52,13 +53,13 @@ COPY srcs/nginx/ssl/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
 
 # INSTALL WORDPRESS #
 # Download wordppress
-RUN wget https://wordpress.org/latest.tar.gz
+RUN wget https://wordpress.org/latest.tar.gz && \
 # Extract wordpress
-RUN	tar xvzf latest.tar.gz
+	tar xvzf latest.tar.gz && \
 # Move directories
-RUN mv wordpress var/www/html/
-# Delete wordpress.tar
-RUN rm latest.tar.gz
+	mv wordpress var/www/html/ && \
+# Delete wordpress.tar	
+	rm latest.tar.gz
 # Create database and user (no password) 
 RUN service mysql start && \
 	mysql -e "CREATE DATABASE wpdb;" | mysql -u root --skip-password && \

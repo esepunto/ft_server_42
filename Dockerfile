@@ -1,24 +1,27 @@
 # See best practices in Dockerfile: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run 
 
-# Install Debian
+# Have you any doubt about nginx? Please, visit https://www.nginx.com/resources/wiki/ 
+
+# INSTALL LINUX #
 FROM	debian:buster
 
-# Who are me?
+# WHO'RE ME # (“I know perfectly well my own egotism...”) 
 LABEL	maintainer = "ssacrist@student.42madrid.com"
 
-# Update and install. 
+# UPDATE LINUX AND INSTALL NGINX, MYSQL (mariaDB), PHP and WGET #
 RUN	apt-get update && apt install -y \
 	nginx \
-	mariadb-server
-RUN	apt-get install -y php-fpm php-mysql
+	mariadb-server \
+	php-fpm php-mysql
 
+# SOME INTERESTINGS PROGRAMS"
 RUN apt-get install -y vim
 RUN apt-get install -y wget
 RUN apt-get install -y sudo
 
 # Replace html from Apache to set localhost page
 COPY srcs/nginx/index.html var/www/html/index.html
-COPY srcs/nginx/default /etc/nginx/sites-available/default 
+COPY srcs/nginx/nginx /etc/nginx/sites-available/default
 
 # Config php
 COPY srcs/php/info.php var/www/html/
@@ -58,16 +61,19 @@ RUN mv wordpress var/www/html/
 RUN rm latest.tar.gz
 # Create database and user (no password) 
 RUN service mysql start && \
-	echo "CREATE DATABASE wpdb;" | mysql -u root --skip-password && \
-	echo "GRANT ALL PRIVILEGES ON wpdb.* TO 'root'@'localhost';" | mysql -u root --skip-password && \
-	echo "FLUSH PRIVILEGES;" | mysql -u root -p --skip-password && \
+	mysql -e "CREATE DATABASE wpdb;" | mysql -u root --skip-password && \
+	mysql -e "GRANT ALL PRIVILEGES ON wpdb.* TO 'root'@'localhost';" | mysql -u root --skip-password && \
+	mysql -e "FLUSH PRIVILEGES;" | mysql -u root -p --skip-password && \
+# Change MySQL Server authentication plugin for root user	
 	echo "update mysql.user set plugin = 'mysql_native_password' where user='root';" | mysql -u root
 # Config wordpress
 COPY srcs/wordpress/wp-config.php var/www/html/wordpress/
+#COPY srcs/wordpress/wordpress.conf /etc/nginx/sites-available/
+#COPY srcs/wordpress/otro_wordpress.conf /etc/nginx/sites-available/wordpress.conf
 
 
 # Start autoindex on (put "no" to off)
-ENV	AUTOINDEX=yes
+ENV	AUTOINDEX=no
 
 EXPOSE 80 443
 

@@ -20,13 +20,13 @@
 
 // ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', 'database_name_here' ); // wpdb
+define( 'DB_NAME', 'wpdb' ); // wpdb
 
 /** MySQL database username */
-define( 'DB_USER', 'username_here' ); // wpuser
+define( 'DB_USER', 'root' ); // wpuser
 
 /** MySQL database password */
-define( 'DB_PASSWORD', 'password_here' ); // dbpassword
+define( 'DB_PASSWORD', '' ); // dbpassword
 
 /** MySQL hostname */
 define( 'DB_HOST', 'localhost' );
@@ -54,6 +54,7 @@ define( 'AUTH_SALT',        'put your unique phrase here' );
 define( 'SECURE_AUTH_SALT', 'put your unique phrase here' );
 define( 'LOGGED_IN_SALT',   'put your unique phrase here' );
 define( 'NONCE_SALT',       'put your unique phrase here' );
+
 
 /**#@-*/
 
@@ -88,4 +89,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /** Sets up WordPress vars and included files. */
 require_once ABSPATH . 'wp-settings.php';
-root@03638eb76bfb:/wordpress#
+#root@03638eb76bfb:/wordpress#

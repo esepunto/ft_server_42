@@ -27,7 +27,11 @@ COPY srcs/nginx/nginx /etc/nginx/sites-available/default
 # Config php
 COPY srcs/php/info.php var/www/html/
 
+
+######################
 # INSTALL PHPMYADMIN #
+######################
+
 # Install some packages
 RUN apt-get install -y php-mbstring php-zip php-gd && \
 # Download phpmyadmin
@@ -45,13 +49,21 @@ RUN service mysql start && \
 	echo "GRANT ALL PRIVILEGES ON *.* TO 'samuel'@'localhost' IDENTIFIED BY 'samuel' WITH GRANT OPTION;" | mysql -u root  && \
 	echo "FLUSH PRIVILEGES;" | mysql -u root
 
-# CREATING THE SSL CERTIFICATE
+
+################################
+# CREATING THE SSL CERTIFICATE #
+################################
+
 RUN apt-get install -y openssl
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=esepunto" -keyout /etc/ssl/private/ssacrist.key -out /etc/ssl/certs/ssacrist.crt
 COPY srcs/nginx/ssl/self-signed.conf /etc/nginx/snippets/self-signed.conf
 COPY srcs/nginx/ssl/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
 
+
+#####################
 # INSTALL WORDPRESS #
+#####################
+
 # Download wordppress
 RUN wget https://wordpress.org/latest.tar.gz && \
 # Extract wordpress

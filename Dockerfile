@@ -15,25 +15,21 @@ RUN	apt-get update && apt install -y \
 	php-fpm php-mysql \
 	wget
 
-# SOME INTERESTINGS PROGRAMS"
+# SOME INTERESTINGS PROGRAMS #
 RUN apt-get install -y vim
 RUN apt-get install -y sudo
 
-# Replace html from Apache to set localhost page
+# Replace html from Apache to set localhost page #
 COPY srcs/nginx/index.html var/www/html/index.html
+RUN rm -r var/www/html/index.nginx-debian.html
 
-# Config php
+# CONFIG PHP #
 COPY srcs/php/info.php var/www/html/
-
-
-
-
 
 
 ######################
 # INSTALL PHPMYADMIN #
 ######################
-
 # Install some packages
 RUN apt-get install -y php-mbstring php-zip php-gd && \
 # Download phpmyadmin
@@ -55,7 +51,6 @@ RUN service mysql start && \
 ################################
 # CREATING THE SSL CERTIFICATE #
 ################################
-
 RUN apt-get install -y openssl
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=esepunto" -keyout /etc/ssl/private/ssacrist.key -out /etc/ssl/certs/ssacrist.crt
 COPY srcs/nginx/ssl/self-signed.conf /etc/nginx/snippets/self-signed.conf
@@ -65,7 +60,6 @@ COPY srcs/nginx/ssl/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
 #####################
 # INSTALL WORDPRESS #
 #####################
-
 # Download wordppress
 RUN wget https://wordpress.org/latest.tar.gz && \
 # Extract wordpress
@@ -83,31 +77,20 @@ RUN service mysql start && \
 	echo "update mysql.user set plugin = 'mysql_native_password' where user='root';" | mysql -u root
 # Config wordpress
 COPY srcs/wordpress/wp-config.php var/www/html/wordpress/
-#COPY srcs/wordpress/wordpress.conf /etc/nginx/sites-available/
-#COPY srcs/wordpress/otro_wordpress.conf /etc/nginx/sites-available/wordpress.conf
+COPY srcs/wordpress/wordpress.conf /etc/nginx/sites-available/
 
-RUN	chown -R www-data:www-data /var/www/html/*
 
 ####################
 # MANAGE AUTOINDEX #
 ####################
-# Start autoindex on (put "no" to off)
-#ENV	AUTOINDEX=no
-# Config nginx autoindex ON
-#COPY srcs/nginx/nginx /etc/nginx/sites-available/default
-#RUN rm -r var/www/html/*.html
-# Config nginx autoindex OFF
-#COPY srcs/nginx/nginx_off /etc/nginx/sites-available/default
-
-
-ARG AUTOINDEX
+COPY srcs/nginx/nginx_off /etc/nginx/sites-available/default
+RUN chmod 755 var/www/html/*.*
 RUN mkdir temp
-COPY srcs/nginx/nginx temp
-COPY srcs/nginx/nginx_off temp
-COPY srcs/nginx/index_on.sh temp/index_on.sh
-COPY srcs/nginx/index_off.sh temp/index_off.sh
-RUN chmod 755 temp/*.*
-RUN if [ "$AUTOINDEX" = "on" ]; then temp/index_on.sh; else temp/index_off.sh; fi
+ADD srcs/nginx/nginx temp
+ADD srcs/nginx/nginx_off temp
+ADD srcs/nginx/index_on.sh index_on.sh
+ADD srcs/nginx/index_off.sh index_off.sh
+RUN chmod 755 ./*.*
 
 
 EXPOSE 80 443
@@ -117,5 +100,3 @@ CMD service nginx start && \
 	service mysql start && \
 	service php7.3-fpm start && \
 	bash
-
-

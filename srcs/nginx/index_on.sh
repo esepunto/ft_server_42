@@ -1,4 +1,4 @@
 #!/bin/bash
-    cp nginx /etc/nginx/sites-available/default
-    rm -r ../var/www/html/*.html
+    cp temp/nginx /etc/nginx/sites-available/default
+    mv var/www/html/index.html temp/index.html
     service nginx reload

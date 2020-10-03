@@ -10,7 +10,7 @@ build:
 	docker build -t img_project .
 
 run:
-	docker run -e AUTOINDEX=off -it -p 80:80 -p 443:443 img_project
+	docker run -it -p 80:80 -p 443:443 img_project
 
 index_on:
 	docker run -e AUTOINDEX=on -it -p 80:80 -p 443:443 img_project

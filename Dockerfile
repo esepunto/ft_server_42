@@ -42,6 +42,8 @@ RUN apt-get install -y php-mbstring php-zip php-gd && \
 	rm phpMyAdmin-4.9.5-all-languages.tar.gz
 # Config phpmyadmin
 COPY srcs/phpmyadmin/config.inc.php var/www/html/phpmyadmin
+# Permiss to phpmyadmin
+RUN chmod 0755 var/www/html/phpmyadmin/config.inc.php
 # Create user and pass to access PhpMyAdmin (samuel/samuel)
 RUN service mysql start && \
 	echo "GRANT ALL PRIVILEGES ON *.* TO 'samuel'@'localhost' IDENTIFIED BY 'samuel' WITH GRANT OPTION;" | mysql -u root  && \

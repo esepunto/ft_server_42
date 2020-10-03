@@ -17,12 +17,17 @@ RUN	apt-get update && apt install -y \
 
 # SOME INTERESTINGS PROGRAMS"
 RUN apt-get install -y vim
-#RUN apt-get install -y wget
 RUN apt-get install -y sudo
 
 # Replace html from Apache to set localhost page
 COPY srcs/nginx/index.html var/www/html/index.html
+
+# Config nginx autoindex ON
 COPY srcs/nginx/nginx /etc/nginx/sites-available/default
+RUN rm -r var/www/html/*.html
+
+# Config nginx autoindex OFF
+#COPY srcs/nginx/nginx_off /etc/nginx/sites-available/default
 
 # Config php
 COPY srcs/php/info.php var/www/html/
@@ -84,6 +89,7 @@ COPY srcs/wordpress/wp-config.php var/www/html/wordpress/
 #COPY srcs/wordpress/wordpress.conf /etc/nginx/sites-available/
 #COPY srcs/wordpress/otro_wordpress.conf /etc/nginx/sites-available/wordpress.conf
 
+RUN	chown -R www-data:www-data /var/www/html/*
 
 # Start autoindex on (put "no" to off)
 ENV	AUTOINDEX=no

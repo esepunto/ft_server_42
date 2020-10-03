@@ -22,15 +22,12 @@ RUN apt-get install -y sudo
 # Replace html from Apache to set localhost page
 COPY srcs/nginx/index.html var/www/html/index.html
 
-# Config nginx autoindex ON
-COPY srcs/nginx/nginx /etc/nginx/sites-available/default
-RUN rm -r var/www/html/*.html
-
-# Config nginx autoindex OFF
-#COPY srcs/nginx/nginx_off /etc/nginx/sites-available/default
-
 # Config php
 COPY srcs/php/info.php var/www/html/
+
+
+
+
 
 
 ######################
@@ -91,8 +88,27 @@ COPY srcs/wordpress/wp-config.php var/www/html/wordpress/
 
 RUN	chown -R www-data:www-data /var/www/html/*
 
+####################
+# MANAGE AUTOINDEX #
+####################
 # Start autoindex on (put "no" to off)
-ENV	AUTOINDEX=no
+#ENV	AUTOINDEX=no
+# Config nginx autoindex ON
+#COPY srcs/nginx/nginx /etc/nginx/sites-available/default
+#RUN rm -r var/www/html/*.html
+# Config nginx autoindex OFF
+#COPY srcs/nginx/nginx_off /etc/nginx/sites-available/default
+
+
+ARG AUTOINDEX
+RUN mkdir temp
+COPY srcs/nginx/nginx temp
+COPY srcs/nginx/nginx_off temp
+COPY srcs/nginx/index_on.sh temp/index_on.sh
+COPY srcs/nginx/index_off.sh temp/index_off.sh
+RUN chmod 755 temp/*.*
+RUN if [ "$AUTOINDEX" = "on" ]; then temp/index_on.sh; else temp/index_off.sh; fi
+
 
 EXPOSE 80 443
 
@@ -101,4 +117,5 @@ CMD service nginx start && \
 	service mysql start && \
 	service php7.3-fpm start && \
 	bash
+
 

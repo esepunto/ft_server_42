@@ -10,14 +10,10 @@ build:
 	docker build -t img_project .
 
 run:
-	docker run -it -p 80:80 -p 443:443 img_project
+	docker run -e AUTOINDEX=off -it -p 80:80 -p 443:443 img_project
 
-index_off:
-	docker run \
-	--env "AUTOINDEX=no" \
-	--rm -d -p 80:80 -p 443:443 \
-	--name ft_server \
-	img_server
+index_on:
+	docker run -e AUTOINDEX=on -it -p 80:80 -p 443:443 img_project
 
 exec:
 	docker exec -it ft_server bash

@@ -9,16 +9,12 @@ FROM	debian:buster
 LABEL	maintainer = "ssacrist@student.42madrid.com"
 
 # UPDATE LINUX AND INSTALL NGINX, MYSQL (mariaDB), PHP and WGET #
-RUN	apt-get update && apt install -y \
+RUN	apt-get update && \
+	apt install -y \
 	nginx \
 	mariadb-server \
 	php-fpm php-mysql \
-	wget
-
-# SOME INTERESTINGS PROGRAMS #
-RUN apt-get install -y vim
-RUN apt-get install -y sudo
-RUN apt-get install -y apt-utils
+	wget 
 
 # CONFIG PHP #
 COPY srcs/php/info.php var/www/html/
@@ -40,38 +36,28 @@ RUN apt-get install -y php-mbstring php-zip php-gd && \
 # Config phpmyadmin
 COPY srcs/phpmyadmin/config.inc.php var/www/html/phpmyadmin
 # Permiss to phpmyadmin
-RUN chmod 0755 var/www/html/phpmyadmin/config.inc.php
+RUN chmod 0755 var/www/html/phpmyadmin/config.inc.php && \
 # Create temporal folder to store templates
-RUN mkdir /var/www/html/phpmyadmin/tmp && chmod 0777 /var/www/html/phpmyadmin/tmp -R
+	mkdir /var/www/html/phpmyadmin/tmp && chmod 0777 /var/www/html/phpmyadmin/tmp -R && \
 # Create user and pass to access PhpMyAdmin (samuel/samuel)
-RUN service mysql start && \
+	service mysql start && \
 	echo "GRANT ALL PRIVILEGES ON *.* TO 'samuel'@'localhost' IDENTIFIED BY 'samuel' WITH GRANT OPTION;" | mysql -u root  && \
-	echo "FLUSH PRIVILEGES;" | mysql -u root
-
-
-################################
-# CREATING THE SSL CERTIFICATE #
-################################
-RUN apt-get install -y openssl
-RUN openssl req -x509 -nodes -days 42 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=esepunto" -keyout /etc/ssl/private/ssacrist.key -out /etc/ssl/certs/ssacrist.crt
-#COPY srcs/nginx/ssl/self-signed.conf /etc/nginx/snippets/self-signed.conf
-#COPY srcs/nginx/ssl/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
-COPY srcs/nginx/ssl/*.* /etc/nginx/snippets/
+	echo "FLUSH PRIVILEGES;" | mysql -u root 
 
 
 #####################
 # INSTALL WORDPRESS #
 #####################
 # Download wordppress
-RUN wget https://wordpress.org/latest.tar.gz && \
+RUN	wget https://wordpress.org/latest.tar.gz && \
 # Extract wordpress
 	tar xvzf latest.tar.gz && \
 # Move directories
 	mv wordpress var/www/html/ && \
 # Delete wordpress.tar	
-	rm latest.tar.gz
+	rm latest.tar.gz && \
 # Create database and user (no password) 
-RUN service mysql start && \
+	service mysql start && \
 	mysql -e "CREATE DATABASE wpdb;" | mysql -u root --skip-password && \
 	mysql -e "GRANT ALL PRIVILEGES ON wpdb.* TO 'root'@'localhost';" | mysql -u root --skip-password && \
 	mysql -e "FLUSH PRIVILEGES;" | mysql -u root -p --skip-password && \
@@ -82,6 +68,16 @@ COPY srcs/wordpress/wp-config.php var/www/html/wordpress/
 COPY srcs/wordpress/wordpress.conf /etc/nginx/sites-available/
 
 
+################################
+# CREATING THE SSL CERTIFICATE #
+################################
+RUN apt-get install -y openssl && \
+	openssl req -x509 -nodes -days 42 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=esepunto" -keyout /etc/ssl/private/ssacrist.key -out /etc/ssl/certs/ssacrist.crt
+#COPY srcs/nginx/ssl/self-signed.conf /etc/nginx/snippets/self-signed.conf
+#COPY srcs/nginx/ssl/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
+COPY srcs/nginx/ssl/*.* /etc/nginx/snippets/
+
+
 ####################
 # MANAGE AUTOINDEX #
 ####################
@@ -90,16 +86,16 @@ RUN chmod 755 var/www/html/*.* && \
 	mkdir temp && \ 
 	rm -r var/www/html/index.nginx-debian.html && \
 	chmod 755 ./
-ADD srcs/nginx/index.html temp
-ADD srcs/nginx/nginx_on temp
-ADD srcs/nginx/nginx_off temp
-ADD srcs/nginx/*.sh ./
+COPY srcs/nginx/index.html temp
+COPY srcs/nginx/nginx_on temp
+COPY srcs/nginx/nginx_off temp
+COPY srcs/nginx/*.sh ./
 
 
-
+# PORTS THAT LISTEN #
 EXPOSE 80 443
 
-# Initialize services
+# Initialize services #
 CMD service nginx start && \
 	service mysql start && \
 	service php7.3-fpm start && \

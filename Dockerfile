@@ -86,14 +86,15 @@ COPY srcs/wordpress/wordpress.conf /etc/nginx/sites-available/
 # MANAGE AUTOINDEX #
 ####################
 COPY srcs/nginx/nginx_on /etc/nginx/sites-available/default
-RUN chmod 755 var/www/html/*.*
-RUN mkdir temp
-RUN rm -r var/www/html/index.nginx-debian.html
+RUN chmod 755 var/www/html/*.* && \
+	mkdir temp && \ 
+	rm -r var/www/html/index.nginx-debian.html && \
+	chmod 755 ./
 ADD srcs/nginx/index.html temp
 ADD srcs/nginx/nginx_on temp
 ADD srcs/nginx/nginx_off temp
 ADD srcs/nginx/*.sh ./
-RUN chmod 755 ./*.*
+
 
 
 EXPOSE 80 443

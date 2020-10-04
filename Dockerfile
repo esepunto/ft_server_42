@@ -18,10 +18,7 @@ RUN	apt-get update && apt install -y \
 # SOME INTERESTINGS PROGRAMS #
 RUN apt-get install -y vim
 RUN apt-get install -y sudo
-
-# Replace html from Apache to set localhost page #
-COPY srcs/nginx/index.html var/www/html/index.html
-RUN rm -r var/www/html/index.nginx-debian.html
+RUN apt-get install -y apt-utils
 
 # CONFIG PHP #
 COPY srcs/php/info.php var/www/html/
@@ -44,6 +41,8 @@ RUN apt-get install -y php-mbstring php-zip php-gd && \
 COPY srcs/phpmyadmin/config.inc.php var/www/html/phpmyadmin
 # Permiss to phpmyadmin
 RUN chmod 0755 var/www/html/phpmyadmin/config.inc.php
+# Create temporal folder to store templates
+RUN mkdir /var/www/html/phpmyadmin/tmp && chmod 0777 /var/www/html/phpmyadmin/tmp -R
 # Create user and pass to access PhpMyAdmin (samuel/samuel)
 RUN service mysql start && \
 	echo "GRANT ALL PRIVILEGES ON *.* TO 'samuel'@'localhost' IDENTIFIED BY 'samuel' WITH GRANT OPTION;" | mysql -u root  && \
@@ -54,9 +53,10 @@ RUN service mysql start && \
 # CREATING THE SSL CERTIFICATE #
 ################################
 RUN apt-get install -y openssl
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=esepunto" -keyout /etc/ssl/private/ssacrist.key -out /etc/ssl/certs/ssacrist.crt
-COPY srcs/nginx/ssl/self-signed.conf /etc/nginx/snippets/self-signed.conf
-COPY srcs/nginx/ssl/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
+RUN openssl req -x509 -nodes -days 42 -newkey rsa:2048 -subj "/C=SP/ST=Spain/L=Madrid/O=42/CN=esepunto" -keyout /etc/ssl/private/ssacrist.key -out /etc/ssl/certs/ssacrist.crt
+#COPY srcs/nginx/ssl/self-signed.conf /etc/nginx/snippets/self-signed.conf
+#COPY srcs/nginx/ssl/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
+COPY srcs/nginx/ssl/*.* /etc/nginx/snippets/
 
 
 #####################
@@ -85,13 +85,14 @@ COPY srcs/wordpress/wordpress.conf /etc/nginx/sites-available/
 ####################
 # MANAGE AUTOINDEX #
 ####################
-COPY srcs/nginx/nginx_off /etc/nginx/sites-available/default
+COPY srcs/nginx/nginx_on /etc/nginx/sites-available/default
 RUN chmod 755 var/www/html/*.*
 RUN mkdir temp
-ADD srcs/nginx/nginx temp
+RUN rm -r var/www/html/index.nginx-debian.html
+ADD srcs/nginx/index.html temp
+ADD srcs/nginx/nginx_on temp
 ADD srcs/nginx/nginx_off temp
-ADD srcs/nginx/index_on.sh index_on.sh
-ADD srcs/nginx/index_off.sh index_off.sh
+ADD srcs/nginx/*.sh ./
 RUN chmod 755 ./*.*
 
 
